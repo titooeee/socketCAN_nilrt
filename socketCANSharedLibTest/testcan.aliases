@@ -1,0 +1,5 @@
+[desktopRT]
+desktopRT = "192.168.10.12"
+
+[My Computer]
+My Computer = "192.168.10.20"
