@@ -1,12 +1,12 @@
 # Using SocketCAN (PCAN USB) in NI Real-Time Linux
 
-By default, **SocketCAN** is **not enabled** in NI RT Linux. This guide covers how to **enable SocketCAN in the RT kernel** and configure **PCAN USB** for CAN communication.
+By default, **SocketCAN** is not enabled in NI RT Linux. This guide covers how to enable SocketCAN in the RT kernel and configure PCAN USB for CAN communication.
 
 ## 1. Setting Up NI RT Linux
-I installed NI RT Linux on an **old desktop** following [this guide](https://forums.ni.com/t5/NI-Linux-Real-Time-Discussions/Running-NI-Linux-RT-on-a-desktop-PC/td-p/3845207), but you can also use **Windows (cross-compilation required), Linux, PXI, or cRIO**.
+I installed NI RT Linux on an old desktop following [this guide](https://forums.ni.com/t5/NI-Linux-Real-Time-Discussions/Running-NI-Linux-RT-on-a-desktop-PC/td-p/3845207), but you can also use Windows (cross-compilation required), Linux, PXI, or cRIO.
 
 Once installed:
-- **Remote into RT Linux** using **VS Code + SSH** ([Setup Guide](https://code.visualstudio.com/docs/remote/ssh)).
+- Remote into RT Linux using **VS Code + SSH** ([Setup Guide](https://code.visualstudio.com/docs/remote/ssh)).
 - Install missing dependencies:
   ```bash
   opkg install git
@@ -26,12 +26,7 @@ Once installed:
   ```bash
   cat /etc/os-release
   ```
-  Example output:
-  ```
-  NAME="NI Linux Real-Time"
-  VERSION="10.3 (kirkstone)"
-  VERSION_ID=10.3
-  ```
+  Mine was 24.5 kirkstone.
 
 ## 2. Building & Configuring the Kernel
 Follow NI’s official documentation:
@@ -48,28 +43,38 @@ make menuconfig
 ```
 
 ### Enable **SocketCAN & PCAN USB**:
-1. Navigate to **CAN Bus Subsystem Support**
-2. Go to **Device Drivers → Network Device Support → CAN Device Drivers → CAN USB Interfaces**
-3. Enable **PEAK PCAN-USB**
+Follow these steps  
+   
+   ![Alt Text](images/menuconfig_1.png)
+   ![Alt Text](images/menuconfig_2.png)
+   ![Alt Text](images/menuconfig_3.png)
+   ![Alt Text](images/menuconfig_4.png)
 
-### Compile & install:
+### Build & Install
+Once the configuration is saved, it's time to build the kernel. The process takes around 5 minutes. After building, update the modules.
 ```bash
-make -j$(nproc) bzImage modules  
-make modules_install  
+make -j$(nproc) bzImage modules
 ```
-
-### Update bootloader:
+Rename bzImage:
 ```bash
-scp bzImage /boot/runmode/bzImage-6.1.92-rt32  
-ln -sf bzImage-6.1.92-rt32 /boot/runmode/bzImage  
+mv /boot/runmode/bzImage /boot/runmode/bzImage-backup
 ```
-
-### Reboot and confirm installation:
+Copy the new kernel:
 ```bash
-lsmod | grep can  
-ip link show | grep can  
+scp bzImage /boot/runmode/bzImage-6.1.92-rt32
 ```
-
+Rewrite symlink:
+```bash
+ln -sf bzImage-6.1.92-rt32 /boot/runmode/bzImage
+```
+Install the modules and reboot:
+```bash
+make modules_install
+```
+If the CAN modules are loaded, verify that the PCAN USB device is detected by running:
+```bash
+lsmod | grep can && ip link show | grep can
+```
 ## 3. Sending CAN Messages
 Set up and send messages over CAN:
 ```bash
@@ -84,11 +89,15 @@ done
 If a second CAN transceiver is connected, it should receive these messages.
 
 ## 4. Calling a Shared Library from LabVIEW
-- Follow NI’s guide: [Using LabVIEW to Call .so Files in NI Linux RT](https://www.ni.com/en-us/support/documentation/supplemental/21/using-shared-libraries-on-ni-linux-real-time.html).
-- Copy the shared library:
-  ```bash
-  scp libsocketcan_fd.so /home/lvuser/natinst/bin/libsocketcan_fd.so
-  ```
-- Add **Desktop RT Target** to a LabVIEW project.
-- Use **Call Library Function Node** to interface with the shared library.
-- Run `test.vi` to send CAN frames using **PCAN USB**.
+1. Download the precompiled library and source code from [GitHub](https://github.com/). Ensure a PCAN USB device is connected and linked to `can0` at 500 kbps. Copy the shared library to the RT system:/home/lvuser/natinst/bin/libsocketcan_fd.so
+2. The repository includes a LabVIEW project. Update the RT IP address and run test.vi to send CAN frames using PCAN USB.
+
+To run C/C++ code or create a shared library for RT Linux, follow this guide:  
+📖 [Cross Compiling C/C++ (Developing in Windows PC)](https://www.ni.com/)  
+
+
+
+
+
+
+
