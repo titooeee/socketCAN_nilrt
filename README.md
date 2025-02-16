@@ -3,7 +3,7 @@
 By default, **SocketCAN** is not enabled in NI RT Linux. This guide covers how to enable SocketCAN in the RT kernel and configure PCAN USB for CAN communication.
 
 ## 1. Setting Up NI RT Linux
-I installed NI RT Linux on an old desktop following [this guide](https://forums.ni.com/t5/NI-Linux-Real-Time-Discussions/Running-NI-Linux-RT-on-a-desktop-PC/td-p/3845207), but you can also use Windows (cross-compilation required), Linux, PXI, or cRIO.
+I installed NI RT Linux on an old desktop following [this guide](https://gitlab.tekniker.es/publico/3151-lsst/documentation/maintenancedocuments/ni-linux-rt-installation), but you can also use Windows (cross-compilation required), Linux, PXI, or cRIO.
 
 Once installed:
 - Remote into RT Linux using **VS Code + SSH** ([Setup Guide](https://code.visualstudio.com/docs/remote/ssh)).
@@ -31,7 +31,7 @@ Once installed:
 ## 2. Building & Configuring the Kernel
 Follow NI’s official documentation:
 - 📺 [YouTube - Linux Kernel on NI Linux RT](https://www.youtube.com/watch?v=xxxxx)
-- 📂 [GitHub - NI Linux Kernel README](https://github.com/ni/linux)
+- 📂 [GitHub - NI Linux Kernel README](https://github.com/ni/nilrt/blob/nilrt/24.5/kirkstone/docs/README.kernel.md)
 
 ### Clone the kernel source and configure it:
 ```bash
@@ -89,14 +89,11 @@ done
 If a second CAN transceiver is connected, it should receive these messages.
 
 ## 4. Calling a Shared Library from LabVIEW
-1. Download the precompiled library and source code from [GitHub](https://github.com/). Ensure a PCAN USB device is connected and linked to `can0` at 500 kbps. Copy the shared library to the RT system:/home/lvuser/natinst/bin/libsocketcan_fd.so
+1. Download the precompiled library and source code from [GitHub](https://github.com/titooeee/socketCAN_nilrt). Ensure a PCAN USB device is connected and linked to `can0` at 500 kbps. Copy the shared library to the RT system:/home/lvuser/natinst/bin/libsocketcan_fd.so
 2. The repository includes a LabVIEW project. Update the RT IP address and run test.vi to send CAN frames using PCAN USB.
 
 To run C/C++ code or create a shared library for RT Linux, follow this guide:  
-📖 [Cross Compiling C/C++ (Developing in Windows PC)](https://www.ni.com/)  
-
-
-
+📖 [Cross Compiling C/C++ (Developing in Windows PC)](https://nilrt-docs.ni.com/cross_compile/introduction.html)  
 
 
 
