@@ -1,4 +1,4 @@
-# Using SocketCAN (PCAN USB) in NI Real-Time Linux
+# Using SocketCAN in NI Real-Time Linux
 
 By default, **SocketCAN** is not enabled in NI RT Linux. This guide covers how to enable SocketCAN in the RT kernel and configure PCAN USB for CAN communication.
 
